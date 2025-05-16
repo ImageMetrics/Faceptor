@@ -1,0 +1,127 @@
+
+common:
+
+  solver:
+    type: Solver
+
+  seed: 2048
+  cuda_deterministic: False
+  fp16: True
+
+  wandb:
+    use: False
+    key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    suffix_run_name: None
+    entity: entity
+    project: project
+    resume: False
+    notes:
+    wandb_log_all: True
+    save_artifacts: False
+
+  num_workers: 4
+  max_iter: 50000
+  gradient_acc: 1
+      
+  backbone:
+    type: FaRLVisualFeatures
+    kwargs:
+      model_type: base
+      model_path: ./pretrain/FaRL-Base-Patch16-LAIONFace20M-ep64.pth
+      drop_path_rate: 0.2
+      forced_input_resolution: 512
+
+  heads:
+    type: DecoderNewHolder
+    kwargs: 
+      task_names: [affect_rafdb]
+      query_nums: [7]
+      interpreter_types: ["value"]
+      out_types: ["None"]
+      decoder_type: "TransformerDecoderLevel"
+      levels: [11]
+
+  model_entry:
+      type: aio_entry
+      kwargs:
+        size_group:
+          group_0:
+            task_types: ["recog", "age", "biattr", "affect"]
+            input_size: 112
+          group_1:
+            task_types: ["parsing", "align"]
+            input_size: 512
+
+  optimizer:
+    type: AdamW
+    kwargs:
+      weight_decay: 0.05
+
+  backbone_multiplier: 1.
+  heads_multiplier: 10.
+  interpreters_multiplier: 10.
+  decoder_multiplier: 10.
+  losses_multiplier: 10.
+
+  lr_scheduler:
+    type: 'Cosine'
+    kwargs:
+      eta_min: 0.
+      base_lr: 1.e-6
+      warmup_lr: 5.e-5
+      warmup_steps: 2000
+  lr_base: 512
+  lr_scale: False
+
+  print_interval: 10
+  save_interval: 5000
+  evaluate_interval: 2500
+
+  task_weight:
+    recog: 5.0
+    age: 5.0
+    biattr: 2.0
+    affect: 10.0
+    parsing: 200.0
+    align: 1000.0
+
+# For 4 Cards.
+tasks:
+  0:
+    name: affect_rafdb
+    loss_weight: 4.
+
+    dataset:
+      type: RAFDBDataset
+      kwargs:
+        data_path: ./data/RAF-DB/basic/
+        augmentation:
+          type: attribute_train_transform
+          kwargs:
+            input_size: 112
+        train: True
+
+    sampler:
+      type: DistributedGivenIterationSampler
+      batch_size: 1
+      shuffle_strategy: 1
+
+    loss:
+      type: MyCrossEntropyLoss
+      kwargs: {}
+
+    evaluator:
+      type: SingferEvaluator
+      use: True
+      kwargs: 
+        mark: eval_rafdb_test
+        test_batch_size: 1
+        test_dataset_cfg:
+          type: RAFDBDataset
+          kwargs:
+            data_path:  ./data/RAF-DB/basic/
+            augmentation:
+              type: attribute_test_transform
+              kwargs:
+                input_size: 112
+            train: False 

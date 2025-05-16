@@ -94,8 +94,9 @@ class RAFDBDataset(Dataset):
 
         self.transform = transform_entry(augmentation)
 
-        with open(self.label_path, "r") as f:
-                data = f.readlines()
+        # with open(self.label_path, "r") as f:
+        #         data = f.readlines()
+        data = []
 
         for i in range(0, len(data)):
             line = data[i].strip('\n').split(" ")

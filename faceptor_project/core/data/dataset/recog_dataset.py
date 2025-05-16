@@ -3,7 +3,7 @@ import numpy as np
 import os
 from torchvision import transforms
 import numbers
-import mxnet as mx
+# import mxnet as mx
 import torch
 from torchvision.datasets import ImageFolder
 

@@ -5,7 +5,7 @@ from typing import Tuple, Union
 
 import torch
 
-from .ext.p2i_ops import p2i
+# from .ext.p2i_ops import p2i
 
 
 def normalize_points(points: torch.Tensor, h: int, w: int) -> torch.Tensor:

@@ -1,0 +1,7 @@
+.vscode
+
+*.pyc
+faceptor_project/data
+faceptor_project/output
+faceptor_project/pretrain
+faceptor_project/**/logs
