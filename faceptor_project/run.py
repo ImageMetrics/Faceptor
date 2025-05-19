@@ -4,12 +4,12 @@ import torch
 import argparse
 from PIL import Image
 from torch import distributed
-import numpy as np
 
-from core.data.transform.attribute_analysis_transform import attribute_test_transform
 from core.utils import printlog
 from core.config import Config
 from core.solver import solver_entry
+
+os.environ["USE_LIBUV"] = "0"
 
 try:
     rank = int(os.environ['RANK'])
@@ -27,7 +27,7 @@ except KeyError:
         world_size=world_size,
     )
 
-# for Faceptor-Base Stage-1
+# # for Faceptor-Base Stage-1
 # args = argparse.Namespace(
 #   config='./faceptor_base_affect.yaml',
 #   expname='train_recog_age_biattr_affect_parsing_align',  # Locked
@@ -51,7 +51,7 @@ except KeyError:
 #   start_time='20240103_164523',  # Locked
 # )
 
-# for naive-Faceptor
+# # for naive-Faceptor
 args = argparse.Namespace(
   config='./native_faceptor_affect.yaml',
   expname='train_recog_age_biattr_affect_parsing_align',  # Locked
@@ -73,21 +73,19 @@ S = solver_entry(C)
 S.create_model()
 S.load(load_items=['state_dict', 'step'])
 S.create_evaluators()
-S.model.set_mode_to_evaluate()
+S.model.module.set_mode_to_evaluate()
 evaluator = S.evaluators['affect_rafdb']
-S.model.set_evaluation_task('affect_rafdb')
+S.model.module.set_evaluation_task('affect_rafdb')
 
 # evaluator(S.last_iter, S.model)
-S.model.to('cpu')
 S.model.eval()
 
 # evaluator.ver_test(S.model, S.last_iter)
 img = Image.open('./data/RAF-DB/basic/data/test_0001_aligned.jpg').convert('RGB')
-transform = attribute_test_transform()
+transform = evaluator.dataloader.dataset.transform
 img = transform(img).unsqueeze_(0)
 
-# input = {'image': img.cuda()}
-input = {'image': img.cpu()}
+input = {'image': img.cuda()}
 output = S.model(input)
 
 S.model.train()

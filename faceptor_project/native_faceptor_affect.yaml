@@ -57,22 +57,22 @@ common:
             outputs: [7, 7]
             indices: [5, 7, 9, 11]
             task_names: ["affect_affectnet", "affect_rafdb"]   
-        parsing:
-          type: MMSEG_UPerHead
-          kwargs:
-            outputs: [19]
-            out_types: ["ParsingOutput"]
-            task_names: ["parsing_celebam"]
-            indices: [3, 5, 7, 11]
-            out_size: [512, 512]
-        align:
-          type: MMSEG_UPerHead
-          kwargs:
-            outputs: [68]
-            out_types: ["AlignOutput"]
-            task_names: ["align_300w"]
-            indices: [3, 5, 7, 11]
-            out_size: [512, 512]
+        # parsing:
+        #   type: MMSEG_UPerHead
+        #   kwargs:
+        #     outputs: [19]
+        #     out_types: ["ParsingOutput"]
+        #     task_names: ["parsing_celebam"]
+        #     indices: [3, 5, 7, 11]
+        #     out_size: [512, 512]
+        # align:
+        #   type: MMSEG_UPerHead
+        #   kwargs:
+        #     outputs: [68]
+        #     out_types: ["AlignOutput"]
+        #     task_names: ["align_300w"]
+        #     indices: [3, 5, 7, 11]
+        #     out_size: [512, 512]
 
   model_entry:
       type: aio_entry
